@@ -51,6 +51,14 @@ module.exports.component = {
 			});
 		}
 
+		this.peer.on('connection', function (conn) {
+			console.info('peer:connection');
+			conn.on('data', function (msg) {
+				console.log('peer:data(%s)', msg.key);
+			});
+		});
+
+		// Debugging
 		if (this.data.debug) {
 			this.peer.on('open', console.info.bind(console, 'peer:open("%s")'));
 			this.peer.on('error', console.warn.bind(console, 'peer:error("%s")'));
