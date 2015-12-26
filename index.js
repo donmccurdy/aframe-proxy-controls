@@ -198,25 +198,25 @@ module.exports.component = {
 
 	onConnection: function (conn) {
 		if (this.data.debug) console.info('peer:connection(%s)', conn.peer);
-		conn.on('data', this.onKeyChange.bind(this));
+		conn.on('data', this.onEvent.bind(this));
 	},
 
 	/*******************************************************************
 	* Remote event propagation
 	*/
 
-	onKeyChange: function (event) {
-		if (!event.type || !event.key) console.warn('Missing event type or key.');
+	onEvent: function (event) {
+		if (!event.type) {
+			if (this.data.debug) console.warn('Missing event type.');
+			return;
+		}
 
-		// Keyboard events
 		switch (event.type) {
-			case 'keydown':
-				this.keys[event.key.toUpperCase()] = true;
-				if (this.data.debug) console.log('remote:keydown(%s)', event.key);
-				break;
-			case 'keyup':
-				this.keys[event.key.toUpperCase()] = false;
-				if (this.data.debug) console.log('remote:keyup(%s)', event.key);
+			case 'keyboard':
+				this.keys = event.state;
+				if (this.data.debug) {
+					console.log('event:keyboard(%s)', Object.keys(event.state).toString());
+				}
 				break;
 			default:
 				if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);
