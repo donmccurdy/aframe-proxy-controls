@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js"></script>
+    <script src="../build.js"></script>
+  </head>
+  <body>
+    <a-assets></a-assets>
+    <a-scene>
+
+      <!-- Cube -->
+      <a-entity position="0 0 -3"
+                geometry="primitive: box"
+                material="color: #4CC3D9">
+      </a-entity>
+
+      <!-- Temporary PeerJS API key, for getting started. -->
+      <a-entity camera
+                client-controls="key: 72chxur433kmaemi;
+                                 debug: true">
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
