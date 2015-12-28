@@ -20,6 +20,7 @@
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
 var Peer = require('peerjs');
+var URLParser = require('./lib/URLParser').URLParser;
 
 var MAX_DELTA = 0.2;
 
@@ -173,15 +174,14 @@ module.exports.component = {
 		if (this.data.key) {
 			this.peer = new Peer(id, {
 				key: this.data.key,
-
 				debug: this.data.debug ? 3 : 0
 			});
 		} else if (this.data.url) {
+			var url = URLParser.parse(this.data.url);
 			this.peer = new Peer(id, {
-				host: this.getHost(),
-				path: this.getPath(),
-				port: this.getPort(),
-
+				host: url.getProtocol() + '//' + url.getHost(),
+				path: url.getPathname(),
+				port: url.getPort(),
 				debug: this.data.debug ? 3 : 0
 			});
 		}
@@ -221,34 +221,6 @@ module.exports.component = {
 			default:
 				if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);
 		}
-	},
-
-	/*******************************************************************
-	* URL parsing
-	*/
-
-	getHost: function () {
-		var a = this.getAnchor();
-		return a.protocol + '//' + a.host;
-	},
-
-	getPath: function () {
-		return this.getAnchor().pathname;
-	},
-
-	getPort: function () {
-		return this.getAnchor().port || 80;
-	},
-
-	/**
-	 * Helper function for URL parsing.
-	 * @return {!Element}
-	 * @private
-	 */
-	getAnchor: function () {
-		var a = document.createElement('A');
-		a.href = this.data.url;
-		return a;
 	},
 
 	/*******************************************************************
