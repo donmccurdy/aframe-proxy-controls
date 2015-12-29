@@ -65,6 +65,9 @@ module.exports.component = {
 		/** @type {DataConnection} DataConnection to remote client. */
 		this.conn = null;
 
+		/** @type {Element} Overlay element to display local client ID. */
+		this.overlay = null;
+
 		this.setupConnection();
 		this.setupControls();
 	},
@@ -193,12 +196,29 @@ module.exports.component = {
 			window.clientControls = this;
 		}
 
+		this.peer.on('open', this.createOverlay.bind(this));
 		this.peer.on('connection', this.onConnection.bind(this));
 	},
 
 	onConnection: function (conn) {
 		if (this.data.debug) console.info('peer:connection(%s)', conn.peer);
 		conn.on('data', this.onEvent.bind(this));
+		this.overlay.remove();
+	},
+
+	createOverlay: function (id) {
+		this.overlay = document.createElement('div');
+		this.overlay.textContent = id;
+		this.overlay.style.position = 'absolute';
+		this.overlay.style.top = '20px';
+		this.overlay.style.left = '20px';
+		this.overlay.style.padding = '0.5em';
+		this.overlay.style.color = '#FFF';
+		this.overlay.style.background = 'rgba(0,0,0,0.5)';
+		this.overlay.style.borderRadius = '3px';
+		this.overlay.style.fontFamily = 'monospace';
+		this.overlay.style.fontSize = '1.2em';
+		document.body.appendChild(this.overlay);
 	},
 
 	/*******************************************************************
