@@ -9,10 +9,10 @@
     "devremote": "watchify examples/remote/remote.js -o examples/remote/build.js",
     "dist": "webpack browser.js dist/aframe-client-controls-component.js && webpack -p browser.js dist/aframe-client-controls-component.min.js",
     "postpublish": "npm run dist",
-    "preghpages": "npm run build && rm -rf gh-pages && cp -r examples gh-pages",
-    "ghpages": "npm run preghpages && ghpages -p gh-pages",
-    "gh-pages": "npm run ghpages",
-    "test": "karma start ./tests/karma.conf.js"
+    "test": "karma start ./tests/karma.conf.js",
+    "preversion": "npm test",
+    "version": "npm run dist && git add -A dist",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
