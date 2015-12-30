@@ -4,9 +4,7 @@
   "description": "Client controls via WebRTC datastream, for A-Frame VR.",
   "main": "index.js",
   "scripts": {
-    "build": "browserify examples/main.js -o examples/build.js",
-    "dev": "watchify examples/main.js -o examples/build.js",
-    "devremote": "watchify examples/remote/remote.js -o examples/remote/build.js",
+    "dev": "budo examples/main.js --dir examples --port 8000 --live --open",
     "dist": "webpack browser.js dist/aframe-client-controls-component.js && webpack -p browser.js dist/aframe-client-controls-component.min.js",
     "postpublish": "npm run dist",
     "test": "karma start ./tests/karma.conf.js",
@@ -42,6 +40,7 @@
     "aframe-core": "*",
     "browserify": "^12.0.1",
     "browserify-css": "^0.8.3",
+    "budo": "^7.1.0",
     "chai": "^3.4.1",
     "chai-shallow-deep-equal": "^1.3.0",
     "ghpages": "0.0.3",
@@ -54,7 +53,6 @@
     "karma-sinon-chai": "^1.1.0",
     "lodash": "^3.10.1",
     "mocha": "^2.3.4",
-    "watchify": "^3.6.1",
     "webpack": "^1.12.9"
   }
 }
