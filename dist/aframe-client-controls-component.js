@@ -91,8 +91,8 @@
 	 * @param {bool} [adInverted=false] - AD Axis is inverted
 	 * @param {debug} [debug=false] - Whether to show debugging information in the log.
 	 */
-	var Peer = __webpack_require__(2);
-	var URLParser = __webpack_require__(14).URLParser;
+	var Peer = __webpack_require__(2),
+		URLParser = __webpack_require__(14).URLParser;
 
 	var MAX_DELTA = 0.2;
 

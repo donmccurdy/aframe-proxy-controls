@@ -19,8 +19,8 @@
  * @param {bool} [adInverted=false] - AD Axis is inverted
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
-var Peer = require('peerjs');
-var URLParser = require('./lib/URLParser').URLParser;
+var Peer = require('peerjs'),
+	URLParser = require('./lib/URLParser').URLParser;
 
 var MAX_DELTA = 0.2;
 
