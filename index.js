@@ -19,6 +19,8 @@
  * @param {bool} [adInverted=false] - AD Axis is inverted
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
+require('./lib/Object.polyfill.js');
+
 var Peer = require('peerjs'),
 	URLParser = require('./lib/URLParser').URLParser;
 
@@ -49,6 +51,27 @@ module.exports.component = {
 
 		// Debugging.
 		debug: { default: false }
+	},
+
+
+	/*******************************************************************
+	* Styles
+	*/
+
+	styles: {
+		overlay: {
+			position: 'absolute',
+			top: '20px',
+			left: '20px',
+			maxWidth: 'calc(100% - 40px)',
+			boxSizing: 'border-box',
+			padding: '0.5em',
+			color: '#FFF',
+			background: 'rgba(0,0,0,0.5)',
+			borderRadius: '3px',
+			fontFamily: 'monospace',
+			fontSize: '1.2em'
+		}
 	},
 
 	/*******************************************************************
@@ -192,12 +215,16 @@ module.exports.component = {
 		// Debugging
 		if (this.data.debug) {
 			this.peer.on('open', console.info.bind(console, 'peer:open("%s")'));
-			this.peer.on('error', console.warn.bind(console, 'peer:error("%s")'));
-			window.clientControls = this;
 		}
 
 		this.peer.on('open', this.createOverlay.bind(this));
 		this.peer.on('connection', this.onConnection.bind(this));
+		this.peer.on('error', function (error) {
+			if (this.data.debug) console.error('peer:error(%s)', error.message);
+			if (error.type === 'browser-incompatible') {
+				this.createOverlay('Client Controls: Sorry, current browser does not support WebRTC.');
+			}
+		}.bind(this));
 	},
 
 	onConnection: function (conn) {
@@ -206,18 +233,10 @@ module.exports.component = {
 		this.overlay.remove();
 	},
 
-	createOverlay: function (id) {
+	createOverlay: function (text) {
 		this.overlay = document.createElement('div');
-		this.overlay.textContent = id;
-		this.overlay.style.position = 'absolute';
-		this.overlay.style.top = '20px';
-		this.overlay.style.left = '20px';
-		this.overlay.style.padding = '0.5em';
-		this.overlay.style.color = '#FFF';
-		this.overlay.style.background = 'rgba(0,0,0,0.5)';
-		this.overlay.style.borderRadius = '3px';
-		this.overlay.style.fontFamily = 'monospace';
-		this.overlay.style.fontSize = '1.2em';
+		this.overlay.textContent = text;
+		Object.assign(this.overlay.style, this.styles.overlay);
 		document.body.appendChild(this.overlay);
 	},
 

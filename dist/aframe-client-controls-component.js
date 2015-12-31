@@ -91,8 +91,10 @@
 	 * @param {bool} [adInverted=false] - AD Axis is inverted
 	 * @param {debug} [debug=false] - Whether to show debugging information in the log.
 	 */
-	var Peer = __webpack_require__(2),
-		URLParser = __webpack_require__(14).URLParser;
+	__webpack_require__(2);
+
+	var Peer = __webpack_require__(3),
+		URLParser = __webpack_require__(15).URLParser;
 
 	var MAX_DELTA = 0.2;
 
@@ -121,6 +123,27 @@
 
 			// Debugging.
 			debug: { default: false }
+		},
+
+
+		/*******************************************************************
+		* Styles
+		*/
+
+		styles: {
+			overlay: {
+				position: 'absolute',
+				top: '20px',
+				left: '20px',
+				maxWidth: 'calc(100% - 40px)',
+				boxSizing: 'border-box',
+				padding: '0.5em',
+				color: '#FFF',
+				background: 'rgba(0,0,0,0.5)',
+				borderRadius: '3px',
+				fontFamily: 'monospace',
+				fontSize: '1.2em'
+			}
 		},
 
 		/*******************************************************************
@@ -264,12 +287,16 @@
 			// Debugging
 			if (this.data.debug) {
 				this.peer.on('open', console.info.bind(console, 'peer:open("%s")'));
-				this.peer.on('error', console.warn.bind(console, 'peer:error("%s")'));
-				window.clientControls = this;
 			}
 
 			this.peer.on('open', this.createOverlay.bind(this));
 			this.peer.on('connection', this.onConnection.bind(this));
+			this.peer.on('error', function (error) {
+				if (this.data.debug) console.error('peer:error(%s)', error.message);
+				if (error.type === 'browser-incompatible') {
+					this.createOverlay('Client Controls: Sorry, current browser does not support WebRTC.');
+				}
+			}.bind(this));
 		},
 
 		onConnection: function (conn) {
@@ -278,18 +305,10 @@
 			this.overlay.remove();
 		},
 
-		createOverlay: function (id) {
+		createOverlay: function (text) {
 			this.overlay = document.createElement('div');
-			this.overlay.textContent = id;
-			this.overlay.style.position = 'absolute';
-			this.overlay.style.top = '20px';
-			this.overlay.style.left = '20px';
-			this.overlay.style.padding = '0.5em';
-			this.overlay.style.color = '#FFF';
-			this.overlay.style.background = 'rgba(0,0,0,0.5)';
-			this.overlay.style.borderRadius = '3px';
-			this.overlay.style.fontFamily = 'monospace';
-			this.overlay.style.fontSize = '1.2em';
+			this.overlay.textContent = text;
+			Object.assign(this.overlay.style, this.styles.overlay);
 			document.body.appendChild(this.overlay);
 		},
 
@@ -331,13 +350,42 @@
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	if (typeof Object.assign !== 'function') {
+	  (function () {
+	    Object.assign = function (target) {
+	      'use strict';
+	      if (target === undefined || target === null) {
+	        throw new TypeError('Cannot convert undefined or null to object');
+	      }
+
+	      var output = Object(target);
+	      for (var index = 1; index < arguments.length; index++) {
+	        var source = arguments[index];
+	        if (source !== undefined && source !== null) {
+	          for (var nextKey in source) {
+	            if (source.hasOwnProperty(nextKey)) {
+	              output[nextKey] = source[nextKey];
+	            }
+	          }
+	        }
+	      }
+	      return output;
+	    };
+	  })();
+	}
+
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
-	var EventEmitter = __webpack_require__(7);
-	var Socket = __webpack_require__(8);
-	var MediaConnection = __webpack_require__(9);
-	var DataConnection = __webpack_require__(11);
+	var util = __webpack_require__(4);
+	var EventEmitter = __webpack_require__(8);
+	var Socket = __webpack_require__(9);
+	var MediaConnection = __webpack_require__(10);
+	var DataConnection = __webpack_require__(12);
 
 	/**
 	 * A peer who can initiate connections with other peers.
@@ -833,14 +881,14 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var defaultConfig = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
 	var dataCount = 1;
 
-	var BinaryPack = __webpack_require__(4);
-	var RTCPeerConnection = __webpack_require__(6).RTCPeerConnection;
+	var BinaryPack = __webpack_require__(5);
+	var RTCPeerConnection = __webpack_require__(7).RTCPeerConnection;
 
 	var util = {
 	  noop: function() {},
@@ -1153,11 +1201,11 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var BufferBuilder = __webpack_require__(5).BufferBuilder;
-	var binaryFeatures = __webpack_require__(5).binaryFeatures;
+	var BufferBuilder = __webpack_require__(6).BufferBuilder;
+	var binaryFeatures = __webpack_require__(6).binaryFeatures;
 
 	var BinaryPack = {
 	  unpack: function(data){
@@ -1678,7 +1726,7 @@
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	var binaryFeatures = {};
@@ -1748,7 +1796,7 @@
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	module.exports.RTCSessionDescription = window.RTCSessionDescription ||
@@ -1760,7 +1808,7 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1970,11 +2018,11 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
-	var EventEmitter = __webpack_require__(7);
+	var util = __webpack_require__(4);
+	var EventEmitter = __webpack_require__(8);
 
 	/**
 	 * An abstraction on top of WebSockets and XHR streaming to provide fastest
@@ -2190,12 +2238,12 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
-	var EventEmitter = __webpack_require__(7);
-	var Negotiator = __webpack_require__(10);
+	var util = __webpack_require__(4);
+	var EventEmitter = __webpack_require__(8);
+	var Negotiator = __webpack_require__(11);
 
 	/**
 	 * Wraps the streaming interface between two Peers.
@@ -2291,13 +2339,13 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
-	var RTCPeerConnection = __webpack_require__(6).RTCPeerConnection;
-	var RTCSessionDescription = __webpack_require__(6).RTCSessionDescription;
-	var RTCIceCandidate = __webpack_require__(6).RTCIceCandidate;
+	var util = __webpack_require__(4);
+	var RTCPeerConnection = __webpack_require__(7).RTCPeerConnection;
+	var RTCSessionDescription = __webpack_require__(7).RTCSessionDescription;
+	var RTCIceCandidate = __webpack_require__(7).RTCIceCandidate;
 
 	/**
 	 * Manages all negotiations between Peers.
@@ -2606,13 +2654,13 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
-	var EventEmitter = __webpack_require__(7);
-	var Negotiator = __webpack_require__(10);
-	var Reliable = __webpack_require__(12);
+	var util = __webpack_require__(4);
+	var EventEmitter = __webpack_require__(8);
+	var Negotiator = __webpack_require__(11);
+	var Reliable = __webpack_require__(13);
 
 	/**
 	 * Wraps a DataChannel between two Peers.
@@ -2879,10 +2927,10 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(13);
+	var util = __webpack_require__(14);
 
 	/**
 	 * Reliable transfer for Chrome Canary DataChannel impl.
@@ -3203,10 +3251,10 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var BinaryPack = __webpack_require__(4);
+	var BinaryPack = __webpack_require__(5);
 
 	var util = {
 	  debug: false,
@@ -3304,7 +3352,7 @@
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	/**
