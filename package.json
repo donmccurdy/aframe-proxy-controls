@@ -1,6 +1,6 @@
 {
   "name": "aframe-client-controls-component",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Client controls via WebRTC datastream, for A-Frame VR.",
   "main": "index.js",
   "scripts": {
