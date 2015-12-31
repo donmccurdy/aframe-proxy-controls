@@ -1,4 +1,4 @@
-# aframe-client-controls-component
+# A-Frame `client-controls` Component
 
 *(In Progress)* Client controls via WebRTC datastream, for A-Frame VR.
 
