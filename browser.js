@@ -7,7 +7,7 @@
 
 	// Register all components here.
 	var components = {
-		'client-controls': require('./index').component
+		'proxy-controls': require('./proxy-controls')
 	};
 
 	Object.keys(components).forEach(function (name) {

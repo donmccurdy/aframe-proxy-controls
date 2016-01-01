@@ -1,7 +1,7 @@
 /**
  * Client controls via WebRTC datastream, for A-Frame VR.
  *
- * @namespace client-controls
+ * @namespace proxy-controls
  * @param {string} url - URL of remote WebRTC connection broker.
  * @param {key} key - API key for PeerJS service.
  * @param {id} id - ID for local client.
@@ -26,7 +26,7 @@ var Peer = require('peerjs'),
 
 var MAX_DELTA = 0.2;
 
-module.exports.component = {
+module.exports = {
 	/*******************************************************************
 	* Schema
 	*/

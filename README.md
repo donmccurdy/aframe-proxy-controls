@@ -1,6 +1,6 @@
-# A-Frame `client-controls` Component
+# A-Frame `proxy-controls` Component
 
-*(In Progress)* Client controls via WebRTC datastream, for A-Frame VR.
+*(In Progress)* Proxy controls via WebRTC datastream, for A-Frame VR.
 
 ## Overview
 

@@ -1,11 +1,11 @@
 {
-  "name": "aframe-client-controls-component",
+  "name": "aframe-proxy-controls",
   "version": "0.0.4",
   "description": "Client controls via WebRTC datastream, for A-Frame VR.",
   "main": "index.js",
   "scripts": {
-    "dev": "budo examples/main.js --dir examples --port 8000 --live --open",
-    "dist": "webpack browser.js dist/aframe-client-controls-component.js && webpack -p browser.js dist/aframe-client-controls-component.min.js",
+    "dev": "budo examples/example.js --dir examples --port 8000 --live --open",
+    "dist": "webpack browser.js dist/aframe-proxy-controls.js && webpack -p browser.js dist/aframe-proxy-controls.min.js",
     "postpublish": "npm run dist",
     "test": "karma start ./tests/karma.conf.js",
     "preversion": "npm test",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/donmccurdy/aframe-client-controls-component.git"
+    "url": "git+https://github.com/donmccurdy/aframe-proxy-controls.git"
   },
   "keywords": [
     "aframe",
@@ -30,9 +30,9 @@
   "author": "Don McCurdy <dm@donmccurdy.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/donmccurdy/aframe-client-controls-component/issues"
+    "url": "https://github.com/donmccurdy/aframe-proxy-controls/issues"
   },
-  "homepage": "https://github.com/donmccurdy/aframe-client-controls-component#readme",
+  "homepage": "https://github.com/donmccurdy/aframe-proxy-controls#readme",
   "dependencies": {
     "peerjs": "^0.3.14"
   },

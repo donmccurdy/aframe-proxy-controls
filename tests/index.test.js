@@ -2,7 +2,7 @@ var Aframe = require('aframe-core');
 var component = require('../index.js').component;
 var entityFactory = require('./helpers').entityFactory;
 
-Aframe.registerComponent('client-controls', component);
+Aframe.registerComponent('proxy-controls', component);
 
 describe('client controls', function () {
 	beforeEach(function (done) {
