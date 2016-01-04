@@ -5,18 +5,7 @@
  * @param {string} url - URL of remote WebRTC connection broker.
  * @param {key} key - API key for PeerJS service.
  * @param {id} id - ID for local client.
- * @param {number} [easing=20] - How fast the movement decelerates. If you hold the
- * keys the entity moves and if you release it will stop. Easing simulates friction.
- * @param {number} [acceleration=65] - Determines the acceleration given
- * to the entity when pressing the keys.
- * @param {bool} [enabled=true] - To completely enable or disable the controls
- * @param {bool} [fly=false] - Determines if the direction of the movement sticks
- * to the plane where the entity started off or if there are 6 degrees of
- * freedom as a diver underwater or a plane flying.
- * @param {string} [wsAxis='z'] - The axis that the W and S keys operate on
- * @param {string} [adAxis='x'] - The axis that the A and D keys operate on
- * @param {bool} [wsInverted=false] - WS Axis is inverted
- * @param {bool} [adInverted=false] - AD Axis is inverted
+ * @param {bool} [enabled=true] - To completely enable or disable the remote updates.
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
 require('./lib/Object.polyfill.js');
