@@ -58,7 +58,7 @@ function init () {
 	var publish = function () {
 		if ( ! _.isEqual(keys, prevKeys)) {
 			prevKeys = _.clone(keys);
-			conn.send({type: 'keyboard', state: keys});
+			conn.send({type: 'keyboard', state: Object.keys(keys)});
 		}
 	};
 
