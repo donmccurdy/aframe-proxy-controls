@@ -1,6 +1,6 @@
 {
   "name": "aframe-proxy-controls",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Client controls via WebRTC datastream, for A-Frame VR.",
   "main": "index.js",
   "scripts": {
