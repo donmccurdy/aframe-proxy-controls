@@ -144,17 +144,9 @@ module.exports = {
 		switch (event.type) {
 			case 'keyboard':
 				this.keys = event.state;
-				if (this.data.debug) {
-					console.log('event:keyboard(⬇️)');
-					console.log(event.state);
-				}
 				break;
 			case 'gamepad':
 				this.gamepads = event.state;
-				if (this.data.debug) {
-					console.log('event:gamepad(⬇️)');
-					console.log(event.state);
-				}
 				break;
 			default:
 				if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);

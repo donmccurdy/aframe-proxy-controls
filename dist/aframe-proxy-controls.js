@@ -46,25 +46,14 @@
 
 	// Browser distrubution of the A-Frame component.
 	(function (AFRAME) {
-		if (!AFRAME) {
-			console.error('Component attempted to register before AFRAME was available.');
-			return;
-		}
+	  if (!AFRAME) {
+	    console.error('Component attempted to register before AFRAME was available.');
+	    return;
+	  }
 
-		// Register all components here.
-		var components = {
-			'proxy-controls': __webpack_require__(1)
-		};
+	  (AFRAME.aframeCore || AFRAME).registerComponent('proxy-controls', __webpack_require__(1));
 
-		Object.keys(components).forEach(function (name) {
-			if (AFRAME.aframeCore) {
-				AFRAME.aframeCore.registerComponent(name, components[name]);
-			} else {
-				AFRAME.registerComponent(name, components[name]);
-			}
-		});
 	}(window.AFRAME));
-
 
 /***/ },
 /* 1 */
@@ -216,17 +205,9 @@
 			switch (event.type) {
 				case 'keyboard':
 					this.keys = event.state;
-					if (this.data.debug) {
-						console.log('event:keyboard(⬇️)');
-						console.log(event.state);
-					}
 					break;
 				case 'gamepad':
 					this.gamepads = event.state;
-					if (this.data.debug) {
-						console.log('event:gamepad(⬇️)');
-						console.log(event.state);
-					}
 					break;
 				default:
 					if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);
