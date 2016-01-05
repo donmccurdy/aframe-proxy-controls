@@ -1,7 +1,7 @@
 {
   "name": "aframe-proxy-controls",
   "version": "0.1.0",
-  "description": "Client controls via WebRTC datastream, for A-Frame VR.",
+  "description": "A-Frame VR component to proxy keyboard/gamepad controls between devices over WebRTC.",
   "main": "index.js",
   "scripts": {
     "dev": "budo browser.js client/client.js --serve bundle.js --dir examples --port 8000 --live --open",
