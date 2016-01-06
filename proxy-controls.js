@@ -122,6 +122,7 @@ module.exports = {
 
 	onConnection: function (conn) {
 		if (this.data.debug) console.info('peer:connection(%s)', conn.peer);
+		this.conn = conn;
 		conn.on('data', this.onEvent.bind(this));
 		this.overlay.remove();
 	},
