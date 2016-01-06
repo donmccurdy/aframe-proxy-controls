@@ -174,7 +174,9 @@
 			this.peer.on('error', function (error) {
 				if (this.data.debug) console.error('peer:error(%s)', error.message);
 				if (error.type === 'browser-incompatible') {
-					this.createOverlay('Client Controls: Sorry, current browser does not support WebRTC.');
+					this.createOverlay(
+						'Client Controls: Sorry, current browser does not support WebRTC.'
+					);
 				}
 			}.bind(this));
 		},
@@ -218,6 +220,16 @@
 		/*******************************************************************
 		* Accessors
 		*/
+
+		/**
+		 * Returns true if the ProxyControls instance is currently connected to a
+		 * remote peer and able to accept input events.
+		 *
+		 * @return {boolean}
+		 */
+		isConnected: function () {
+			return this.conn && this.conn.open;
+		},
 
 		/**
 		 * Returns the Gamepad instance at the given index, if any.
