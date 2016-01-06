@@ -1,6 +1,6 @@
 # A-Frame `proxy-controls` Component
 
-*(In Progress)* A-Frame VR component to proxy keyboard/gamepad controls between devices over WebRTC.
+*(In Progress)* A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.
 
 ## Overview
 

@@ -60,7 +60,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Client controls via WebRTC datastream, for A-Frame VR.
+	 * Client controls via WebRTC datastream, for A-Frame.
 	 *
 	 * @namespace proxy-controls
 	 * @param {string} url - URL of remote WebRTC connection broker.
