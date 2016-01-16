@@ -10,8 +10,7 @@
  */
 require('./lib/Object.polyfill.js');
 
-var Peer = require('peerjs'),
-	URLParser = require('./lib/URLParser').URLParser;
+var SocketPeer = require('socketpeer');
 
 module.exports = {
 	/*******************************************************************
@@ -22,10 +21,9 @@ module.exports = {
 		enabled: { default: true },
 		debug: { default: false },
 
-		// WebRTC configuration.
-		url: { default: '' },
-		key: { default: '' },
-		id: { default: '' }
+		// WebRTC/WebSocket configuration.
+		url: { default: 'http://localhost:3001/socketpeer/' },
+		room: { default: 'my-room' }
 	},
 
 
@@ -57,11 +55,8 @@ module.exports = {
 	 * Called once when component is attached. Generally for initial setup.
 	 */
 	init: function () {
-		/** @type {Peer} WebRTC P2P connection broker. */
+		/** @type {SocketPeer} WebRTC/WebSocket connection. */
 		this.peer = null;
-
-		/** @type {DataConnection} DataConnection to remote client. */
-		this.conn = null;
 
 		/** @type {Element} Overlay element to display local client ID. */
 		this.overlay = null;
@@ -80,59 +75,40 @@ module.exports = {
 	*/
 
 	setupConnection: function () {
-		var id = this.data.id || null;
-
-		if (this.data.key && this.data.url) {
-			console.warn('If both key and url are provided, only key will be used.');
-		} else if (!this.data.key && !this.data.url) {
-			console.warn('WebRTC connection cannot be made without API key or host.');
+		if (!this.data.room || !this.data.url) {
+			console.error('proxy-controls "room" and "url" properties not found.');
 		}
 
-		if (this.data.key) {
-			this.peer = new Peer(id, {
-				key: this.data.key,
-				debug: this.data.debug ? 3 : 0
-			});
-		} else if (this.data.url) {
-			var url = URLParser.parse(this.data.url);
-			this.peer = new Peer(id, {
-				host: url.getProtocol() + '//' + url.getHost(),
-				path: url.getPathname(),
-				port: url.getPort(),
-				debug: this.data.debug ? 3 : 0
-			});
-		}
+		var peer = this.peer = new SocketPeer({
+			pairCode: this.data.room,
+			url: this.data.url
+	  	});
 
 		// Debugging
 		if (this.data.debug) {
-			this.peer.on('open', console.info.bind(console, 'peer:open("%s")'));
+			peer.on('connect', console.info.bind(console, 'peer:connect("%s")'));
+			peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
 		}
 
-		this.peer.on('open', this.createOverlay.bind(this));
-		this.peer.on('connection', this.onConnection.bind(this));
-		this.peer.on('error', function (error) {
+		// peer.on('connect', this.createOverlay.bind(this));
+		peer.on('connect', this.onConnection.bind(this));
+		peer.on('error', function (error) {
 			if (this.data.debug) console.error('peer:error(%s)', error.message);
-			if (error.type === 'browser-incompatible') {
-				this.createOverlay(
-					'Client Controls: Sorry, current browser does not support WebRTC.'
-				);
-			}
 		}.bind(this));
 	},
 
-	onConnection: function (conn) {
-		if (this.data.debug) console.info('peer:connection(%s)', conn.peer);
-		this.conn = conn;
-		conn.on('data', this.onEvent.bind(this));
-		this.overlay.remove();
+	onConnection: function () {
+		if (this.data.debug) console.info('peer:connection()');
+		this.peer.on('data', this.onEvent.bind(this));
+		// this.overlay.remove();
 	},
 
-	createOverlay: function (text) {
-		this.overlay = document.createElement('div');
-		this.overlay.textContent = text;
-		Object.assign(this.overlay.style, this.styles.overlay);
-		document.body.appendChild(this.overlay);
-	},
+	// createOverlay: function (text) {
+	// 	this.overlay = document.createElement('div');
+	// 	this.overlay.textContent = text;
+	// 	Object.assign(this.overlay.style, this.styles.overlay);
+	// 	document.body.appendChild(this.overlay);
+	// },
 
 	/*******************************************************************
 	* Remote event propagation
@@ -168,7 +144,8 @@ module.exports = {
 	 * @return {boolean}
 	 */
 	isConnected: function () {
-		return this.conn && this.conn.open;
+		var peer = this.peer || {};
+		return peer.socketConnected || peer.rtcConnected;
 	},
 
 	/**
