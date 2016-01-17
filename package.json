@@ -2,9 +2,12 @@
   "name": "aframe-proxy-controls",
   "version": "0.3.0",
   "description": "A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.",
-  "main": "index.js",
+  "main": "proxy-controls.js",
+  "config": {
+    "demo_port": 8000
+  },
   "scripts": {
-    "dev": "budo browser.js:bundle.js --dir examples --port 8000 --live --open",
+    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --live --open",
     "dist": "webpack browser.js dist/aframe-proxy-controls.js && webpack -p browser.js dist/aframe-proxy-controls.min.js",
     "postpublish": "npm run dist",
     "test": "karma start ./tests/karma.conf.js",
