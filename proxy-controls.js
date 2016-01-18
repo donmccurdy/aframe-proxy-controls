@@ -64,8 +64,8 @@ module.exports = {
 		/** @type {Array<Gamepad>} Gamepad states from remote client. */
 		this.gamepads = [];
 
-		/** @type {Array<string>} Pressed keys on remote client keyboard. */
-		this.keys = [];
+		/** @type {Object} Pressed keys on remote client keyboard [key]->true. */
+		this.keys = {};
 
 		this.setupConnection();
 	},
@@ -167,11 +167,7 @@ module.exports = {
 	 * @return {Object} [description]
 	 */
 	getKeyboard: function () {
-		var keyboard = {};
-		for (var i = 0; i < this.keys.length; i++) {
-			keyboard[this.keys[i]] = true;
-		}
-		return keyboard;
+		return this.keys;
 	},
 
 	/*******************************************************************
