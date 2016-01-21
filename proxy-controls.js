@@ -121,6 +121,9 @@ module.exports = {
 		}
 
 		switch (event.type) {
+			case 'ping':
+				this.peer.send(event);
+				break;
 			case 'keyboard':
 				this.keys = event.state;
 				break;
