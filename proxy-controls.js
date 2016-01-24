@@ -69,11 +69,8 @@ module.exports = {
 		/** @type {Element} Overlay element to display local client ID. */
 		this.overlay = null;
 
-		/** @type {Array<Gamepad>} Gamepad states from remote client. */
-		this.gamepads = [];
-
-		/** @type {Object} Pressed keys on remote client keyboard [key]->true. */
-		this.keys = {};
+		/** @type {Object} State tracking, keyed by event type. */
+		this.state = {};
 
 		if (this.data.pairCode) {
 			this.setupConnection(this.data.pairCode);
@@ -135,22 +132,10 @@ module.exports = {
 	onEvent: function (event) {
 		if (!event.type) {
 			if (this.data.debug) console.warn('Missing event type.');
-			return;
-		}
-
-		switch (event.type) {
-			case 'ping':
-				this.peer.send(event);
-				break;
-			case 'keyboard':
-				this.keys = event.state;
-				break;
-			case 'gamepad':
-				this.gamepads = event.state;
-				break;
-			default:
-				if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);
-				return;
+		} else if (event.type === 'ping') {
+			this.peer.send(event);
+		} else {
+			this.state[event.type] = event.state;
 		}
 	},
 
@@ -176,7 +161,7 @@ module.exports = {
 	 * @return {Gamepad}
 	 */
 	getGamepad: function (index) {
-		return this.gamepads[index];
+		return (this.state.gamepad || {})[index];
 	},
 
 	/**
@@ -185,10 +170,20 @@ module.exports = {
 	 * be included. For example, while pressing Shift+A, this function would
 	 * return: `{SHIFT: true, A: true}`.
 	 *
-	 * @return {Object} [description]
+	 * @return {Object}
 	 */
 	getKeyboard: function () {
-		return this.keys;
+		return this.state.keyboard || {};
+	},
+
+	/**
+	 * Generic accessor for custom input types.
+	 *
+	 * @param {string} type
+	 * @return {Object}
+	 */
+	get: function (type) {
+		return this.state[type];
 	},
 
 	/*******************************************************************
