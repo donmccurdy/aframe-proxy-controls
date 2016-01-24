@@ -6538,8 +6538,8 @@ var SocketPeer = require('socketpeer');
 
 var PROXY_URL = '';
 if (typeof process !== 'undefined') {
-	PROXY_URL = "http://localhost"
-		+ ':' + "3001";
+  PROXY_URL = "http://localhost"
+    + ':' + "3001";
 }
 
 /**
@@ -6554,187 +6554,182 @@ if (typeof process !== 'undefined') {
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
 module.exports = {
-	/*******************************************************************
-	* Schema
-	*/
+  /*******************************************************************
+  * Schema
+  */
 
-	schema: {
-		enabled: { default: true },
-		debug: { default: false },
+  schema: {
+    enabled: { default: true },
+    debug: { default: false },
 
-		// WebRTC/WebSocket configuration.
-		proxyUrl: { default: PROXY_URL },
-		pairCode: { default: '' }
-	},
+    // WebRTC/WebSocket configuration.
+    proxyUrl: { default: PROXY_URL },
+    pairCode: { default: '' }
+  },
 
 
-	/*******************************************************************
-	* Styles
-	*/
+  /*******************************************************************
+  * Styles
+  */
 
-	styles: {
-		overlay: {
-			position: 'absolute',
-			top: '20px',
-			left: '20px',
-			maxWidth: 'calc(100% - 40px)',
-			boxSizing: 'border-box',
-			padding: '0.5em',
-			color: '#FFF',
-			background: 'rgba(0,0,0,0.5)',
-			borderRadius: '3px',
-			fontFamily: 'monospace',
-			fontSize: '1.2em'
-		}
-	},
+  styles: {
+    overlay: {
+      position: 'absolute',
+      top: '20px',
+      left: '20px',
+      maxWidth: 'calc(100% - 40px)',
+      boxSizing: 'border-box',
+      padding: '0.5em',
+      color: '#FFF',
+      background: 'rgba(0,0,0,0.5)',
+      borderRadius: '3px',
+      fontFamily: 'monospace',
+      fontSize: '1.2em'
+    }
+  },
 
-	/*******************************************************************
-	* Initialization
-	*/
+  /*******************************************************************
+  * Initialization
+  */
 
-	/**
-	 * Called once when component is attached. Generally for initial setup.
-	 */
-	init: function () {
-		/** @type {SocketPeer} WebRTC/WebSocket connection. */
-		this.peer = null;
+  /**
+   * Called once when component is attached. Generally for initial setup.
+   */
+  init: function () {
+    /** @type {SocketPeer} WebRTC/WebSocket connection. */
+    this.peer = null;
 
-		/** @type {Element} Overlay element to display local client ID. */
-		this.overlay = null;
+    /** @type {Element} Overlay element to display local client ID. */
+    this.overlay = null;
 
-		/** @type {Array<Gamepad>} Gamepad states from remote client. */
-		this.gamepads = [];
+    /** @type {Object} State tracking, keyed by event type. */
+    this.state = {};
 
-		/** @type {Object} Pressed keys on remote client keyboard [key]->true. */
-		this.keys = {};
+    if (this.data.pairCode) {
+      this.setupConnection(this.data.pairCode);
+    } else {
+      fetch(this.data.proxyUrl + '/ajax/pair-code')
+        .then(function (response) { return response.json(); })
+        .then(function (data) { return data.pairCode; })
+        .then(this.setupConnection.bind(this))
+        .catch(console.error.bind(console));
+    }
+  },
 
-		if (this.data.pairCode) {
-			this.setupConnection(this.data.pairCode);
-		} else {
-			fetch(this.data.proxyUrl + '/ajax/pair-code')
-				.then(function (response) { return response.json(); })
-				.then(function (data) { return data.pairCode; })
-				.then(this.setupConnection.bind(this))
-				.catch(console.error.bind(console));
-		}
-	},
+  /*******************************************************************
+  * WebRTC Connection
+  */
 
-	/*******************************************************************
-	* WebRTC Connection
-	*/
+  setupConnection: function (pairCode) {
+    if (!this.data.proxyUrl) {
+      console.error('proxy-controls "proxyUrl" property not found.');
+      return;
+    }
 
-	setupConnection: function (pairCode) {
-		if (!this.data.proxyUrl) {
-			console.error('proxy-controls "proxyUrl" property not found.');
-			return;
-		}
+    var peer = this.peer = new SocketPeer({
+      pairCode: pairCode,
+      url: this.data.proxyUrl + '/socketpeer/'
+    });
 
-		var peer = this.peer = new SocketPeer({
-			pairCode: pairCode,
-			url: this.data.proxyUrl + '/socketpeer/'
-  	});
+    // Debugging
+    if (this.data.debug) {
+      peer.on('connect', console.info.bind(console, 'peer:connect("%s")'));
+      peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
+    }
 
-		// Debugging
-		if (this.data.debug) {
-			peer.on('connect', console.info.bind(console, 'peer:connect("%s")'));
-			peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
-		}
+    this.createOverlay('Pair code: "' + pairCode + '"');
+    peer.on('connect', this.onConnection.bind(this));
+    peer.on('disconnect', this.createOverlay.bind(this, pairCode));
+    peer.on('error', function (error) {
+      if (this.data.debug) console.error('peer:error(%s)', error.message);
+    }.bind(this));
+  },
 
-		this.createOverlay('Pair code: "' + pairCode + '"');
-		peer.on('connect', this.onConnection.bind(this));
-		peer.on('disconnect', this.createOverlay.bind(this, pairCode));
-		peer.on('error', function (error) {
-			if (this.data.debug) console.error('peer:error(%s)', error.message);
-		}.bind(this));
-	},
+  onConnection: function () {
+    if (this.data.debug) console.info('peer:connection()');
+    this.peer.on('data', this.onEvent.bind(this));
+    this.overlay.remove();
+  },
 
-	onConnection: function () {
-		if (this.data.debug) console.info('peer:connection()');
-		this.peer.on('data', this.onEvent.bind(this));
-		this.overlay.remove();
-	},
+  createOverlay: function (text) {
+    this.overlay = document.createElement('div');
+    this.overlay.textContent = text;
+    Object.assign(this.overlay.style, this.styles.overlay);
+    document.body.appendChild(this.overlay);
+  },
 
-	createOverlay: function (text) {
-		this.overlay = document.createElement('div');
-		this.overlay.textContent = text;
-		Object.assign(this.overlay.style, this.styles.overlay);
-		document.body.appendChild(this.overlay);
-	},
+  /*******************************************************************
+  * Remote event propagation
+  */
 
-	/*******************************************************************
-	* Remote event propagation
-	*/
+  onEvent: function (event) {
+    if (!event.type) {
+      if (this.data.debug) console.warn('Missing event type.');
+    } else if (event.type === 'ping') {
+      this.peer.send(event);
+    } else {
+      this.state[event.type] = event.state;
+    }
+  },
 
-	onEvent: function (event) {
-		if (!event.type) {
-			if (this.data.debug) console.warn('Missing event type.');
-			return;
-		}
+  /*******************************************************************
+  * Accessors
+  */
 
-		switch (event.type) {
-			case 'ping':
-				this.peer.send(event);
-				break;
-			case 'keyboard':
-				this.keys = event.state;
-				break;
-			case 'gamepad':
-				this.gamepads = event.state;
-				break;
-			default:
-				if (this.data.debug) console.warn('Unknown event type: "%s"', event.type);
-				return;
-		}
-	},
+  /**
+   * Returns true if the ProxyControls instance is currently connected to a
+   * remote peer and able to accept input events.
+   *
+   * @return {boolean}
+   */
+  isConnected: function () {
+    var peer = this.peer || {};
+    return peer.socketConnected || peer.rtcConnected;
+  },
 
-	/*******************************************************************
-	* Accessors
-	*/
+  /**
+   * Returns the Gamepad instance at the given index, if any.
+   *
+   * @param  {number} index
+   * @return {Gamepad}
+   */
+  getGamepad: function (index) {
+    return (this.state.gamepad || {})[index];
+  },
 
-	/**
-	 * Returns true if the ProxyControls instance is currently connected to a
-	 * remote peer and able to accept input events.
-	 *
-	 * @return {boolean}
-	 */
-	isConnected: function () {
-		var peer = this.peer || {};
-		return peer.socketConnected || peer.rtcConnected;
-	},
+  /**
+   * Returns an object representing keyboard state. Object will have keys
+   * for every pressed key on the keyboard, while unpressed keys will not
+   * be included. For example, while pressing Shift+A, this function would
+   * return: `{SHIFT: true, A: true}`.
+   *
+   * @return {Object}
+   */
+  getKeyboard: function () {
+    return this.state.keyboard || {};
+  },
 
-	/**
-	 * Returns the Gamepad instance at the given index, if any.
-	 *
-	 * @param  {number} index
-	 * @return {Gamepad}
-	 */
-	getGamepad: function (index) {
-		return this.gamepads[index];
-	},
+  /**
+   * Generic accessor for custom input types.
+   *
+   * @param {string} type
+   * @return {Object}
+   */
+  get: function (type) {
+    return this.state[type];
+  },
 
-	/**
-	 * Returns an object representing keyboard state. Object will have keys
-	 * for every pressed key on the keyboard, while unpressed keys will not
-	 * be included. For example, while pressing Shift+A, this function would
-	 * return: `{SHIFT: true, A: true}`.
-	 *
-	 * @return {Object} [description]
-	 */
-	getKeyboard: function () {
-		return this.keys;
-	},
+  /*******************************************************************
+  * Dealloc
+  */
 
-	/*******************************************************************
-	* Dealloc
-	*/
-
-	/**
-	 * Called when a component is removed (e.g., via removeAttribute).
-	 * Generally undoes all modifications to the entity.
-	 */
-	remove: function () {
-		if (this.peer) this.peer.destroy();
-	}
+  /**
+   * Called when a component is removed (e.g., via removeAttribute).
+   * Generally undoes all modifications to the entity.
+   */
+  remove: function () {
+    if (this.peer) this.peer.destroy();
+  }
 };
 
 }).call(this,require('_process'))
