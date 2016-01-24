@@ -1,17 +1,25 @@
+require('./lib/Object.polyfill.js');
+require('whatwg-fetch');
+
+var SocketPeer = require('socketpeer');
+
+var PROXY_URL = '';
+if (typeof process !== 'undefined') {
+	PROXY_URL = process.env.npm_package_config_proxy_host
+		+ ':' + process.env.npm_package_config_proxy_port;
+}
+
 /**
  * Client controls via WebRTC datastream, for A-Frame.
  *
  * @namespace proxy-controls
- * @param {string} url - URL of remote WebRTC connection broker.
- * @param {key} key - API key for PeerJS service.
- * @param {id} id - ID for local client.
+ * @param {string} proxyUrl - URL of remote WebRTC connection broker.
+ * @param {string} proxyPath - Proxy path on connection broken service.
+ * @param {string} pairCode - ID for local client. If not specified, a random
+ *                          code is fetched from the server.
  * @param {bool} [enabled=true] - To completely enable or disable the remote updates.
  * @param {debug} [debug=false] - Whether to show debugging information in the log.
  */
-require('./lib/Object.polyfill.js');
-
-var SocketPeer = require('socketpeer');
-
 module.exports = {
 	/*******************************************************************
 	* Schema
@@ -22,8 +30,8 @@ module.exports = {
 		debug: { default: false },
 
 		// WebRTC/WebSocket configuration.
-		url: { default: 'http://localhost:3001/socketpeer/' },
-		room: { default: 'my-room' }
+		proxyUrl: { default: PROXY_URL },
+		pairCode: { default: '' }
 	},
 
 
@@ -67,22 +75,31 @@ module.exports = {
 		/** @type {Object} Pressed keys on remote client keyboard [key]->true. */
 		this.keys = {};
 
-		this.setupConnection();
+		if (this.data.pairCode) {
+			this.setupConnection(this.data.pairCode);
+		} else {
+			fetch(this.data.proxyUrl + '/ajax/pair-code')
+				.then(function (response) { return response.json(); })
+				.then(function (data) { return data.pairCode; })
+				.then(this.setupConnection.bind(this))
+				.catch(console.error.bind(console));
+		}
 	},
 
 	/*******************************************************************
 	* WebRTC Connection
 	*/
 
-	setupConnection: function () {
-		if (!this.data.room || !this.data.url) {
-			console.error('proxy-controls "room" and "url" properties not found.');
+	setupConnection: function (pairCode) {
+		if (!this.data.proxyUrl) {
+			console.error('proxy-controls "proxyUrl" property not found.');
+			return;
 		}
 
 		var peer = this.peer = new SocketPeer({
-			pairCode: this.data.room,
-			url: this.data.url
-	  	});
+			pairCode: pairCode,
+			url: this.data.proxyUrl + '/socketpeer/'
+		});
 
 		// Debugging
 		if (this.data.debug) {
@@ -90,8 +107,9 @@ module.exports = {
 			peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
 		}
 
-		// peer.on('connect', this.createOverlay.bind(this));
+		this.createOverlay('Pair code: "' + pairCode + '"');
 		peer.on('connect', this.onConnection.bind(this));
+		peer.on('disconnect', this.createOverlay.bind(this, pairCode));
 		peer.on('error', function (error) {
 			if (this.data.debug) console.error('peer:error(%s)', error.message);
 		}.bind(this));
@@ -100,15 +118,15 @@ module.exports = {
 	onConnection: function () {
 		if (this.data.debug) console.info('peer:connection()');
 		this.peer.on('data', this.onEvent.bind(this));
-		// this.overlay.remove();
+		this.overlay.remove();
 	},
 
-	// createOverlay: function (text) {
-	// 	this.overlay = document.createElement('div');
-	// 	this.overlay.textContent = text;
-	// 	Object.assign(this.overlay.style, this.styles.overlay);
-	// 	document.body.appendChild(this.overlay);
-	// },
+	createOverlay: function (text) {
+		this.overlay = document.createElement('div');
+		this.overlay.textContent = text;
+		Object.assign(this.overlay.style, this.styles.overlay);
+		document.body.appendChild(this.overlay);
+	},
 
 	/*******************************************************************
 	* Remote event propagation

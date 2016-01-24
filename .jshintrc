@@ -1,11 +1,13 @@
 {
   "globals": { 
-    "THREE": false,
-    "window": false,
-    "document": false,
-    "require": false,
     "console": false,
-    "module": false
+    "document": false,
+    "fetch": false,
+    "module": false,
+    "process": false,
+    "require": false,
+    "THREE": false,
+    "window": false
   },
   "bitwise": false,
   "browser": true,
