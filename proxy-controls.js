@@ -5,8 +5,7 @@ var SocketPeer = require('socketpeer');
 
 var PROXY_URL = '';
 if (typeof process !== 'undefined') {
-  PROXY_URL = process.env.npm_package_config_proxy_host
-    + ':' + process.env.npm_package_config_proxy_port;
+  PROXY_URL = process.env.npm_package_config_proxy_url;
 }
 
 /**
