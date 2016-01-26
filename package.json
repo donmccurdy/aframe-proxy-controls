@@ -5,7 +5,7 @@
   "main": "proxy-controls.js",
   "config": {
     "demo_port": 8000,
-    "proxy_url": "http://localhost:3000"
+    "proxy_url": "https://proxy-controls.donmccurdy.com"
   },
   "scripts": {
     "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --live --open -- -t envify",
