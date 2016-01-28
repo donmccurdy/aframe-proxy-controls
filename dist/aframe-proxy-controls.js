@@ -6538,8 +6538,7 @@ var SocketPeer = require('socketpeer');
 
 var PROXY_URL = '';
 if (typeof process !== 'undefined') {
-  PROXY_URL = "http://localhost"
-    + ':' + "3001";
+  PROXY_URL = "https://proxy-controls.donmccurdy.com";
 }
 
 /**

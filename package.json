@@ -8,7 +8,7 @@
     "proxy_url": "https://proxy-controls.donmccurdy.com"
   },
   "scripts": {
-    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --live --open -- -t envify",
+    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --live -- -t envify",
     "dist": "browserify -t envify browser.js -o dist/aframe-proxy-controls.js && uglify -s dist/aframe-proxy-controls.js -o dist/aframe-proxy-controls.min.js",
     "test": "karma start ./tests/karma.conf.js",
     "preversion": "karma start ./tests/karma.conf.js --single-run",
