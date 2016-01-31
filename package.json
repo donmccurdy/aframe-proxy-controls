@@ -4,11 +4,12 @@
   "description": "A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.",
   "main": "proxy-controls.js",
   "config": {
+    "demo_host": "localhost",
     "demo_port": 8000,
     "proxy_url": "https://proxy-controls.donmccurdy.com"
   },
   "scripts": {
-    "dev": "budo browser.js:bundle.js --dir examples --port $npm_package_config_demo_port --live -- -t envify",
+    "dev": "budo browser.js:bundle.js --dir examples --host $npm_package_config_demo_host --port $npm_package_config_demo_port --live -- -t envify",
     "dist": "browserify -t envify browser.js -o dist/aframe-proxy-controls.js && uglify -s dist/aframe-proxy-controls.js -o dist/aframe-proxy-controls.min.js",
     "test": "karma start ./tests/karma.conf.js",
     "preversion": "karma start ./tests/karma.conf.js --single-run",
@@ -38,7 +39,7 @@
   "homepage": "https://github.com/donmccurdy/aframe-proxy-controls#readme",
   "dependencies": {
     "keyboardevent-key-polyfill": "^1.0.1",
-    "socketpeer": "^1.0.2",
+    "socketpeer": "donmccurdy/socketpeer#feat-emit-disconnect",
     "whatwg-fetch": "^0.11.0"
   },
   "devDependencies": {

@@ -4,12 +4,12 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Scene • Examples</title>
     <script src="https://aframe.io/releases/latest/aframe.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-gamepad-controls/v0.3.1/dist/aframe-gamepad-controls.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-keyboard-controls/v0.1.1/dist/aframe-keyboard-controls.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-gamepad-controls/v0.3.2/dist/aframe-gamepad-controls.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-keyboard-controls/v0.1.2/dist/aframe-keyboard-controls.js"></script>
     <script src="../../bundle.js"></script>
   </head>
   <body>
-    <a-scene>
+    <a-scene proxy-controls="debug: true">
       <!--
         Camera + Gamepad controls
         Button 0 is "A" on an Xbox controller.
@@ -17,9 +17,8 @@
       <a-entity camera
                 position="0 1 0"
                 look-controls
-                gamepad-controls="lookEnabled: false"
+                gamepad-controls
                 keyboard-controls
-                proxy-controls="debug: true"
                 sound="src: assets/321103__nsstudios__blip1.wav;
                        on: gamepadbuttondown:0">
       </a-entity>
