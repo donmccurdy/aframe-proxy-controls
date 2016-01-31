@@ -6536,7 +6536,7 @@ require('whatwg-fetch');
 
 var SocketPeer = require('socketpeer');
 
-var PROXY_URL = '';
+var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 if (typeof process !== 'undefined') {
   PROXY_URL = "https://proxy-controls.donmccurdy.com";
 }
