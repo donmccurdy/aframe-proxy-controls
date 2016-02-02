@@ -10,7 +10,7 @@
 
 }(window.AFRAME));
 
-},{"./proxy-controls":42}],2:[function(require,module,exports){
+},{"./proxy-controls":43}],2:[function(require,module,exports){
 if (typeof Object.assign !== 'function') {
   (function () {
     Object.assign = function (target) {
@@ -37,7 +37,122 @@ if (typeof Object.assign !== 'function') {
 
 },{}],3:[function(require,module,exports){
 
+var STYLES = {
+  overlay: {
+    default: [
+      'position: absolute;',
+      'top: 20px;',
+      'left: 20px;',
+      'max-width: calc(100% - 40px);',
+      'box-sizing: border-box;',
+      'padding: 0.5em;',
+      'color: #FFF;',
+      'background: rgba(0,0,0,0.35);',
+      'font-family: Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif;',
+      'font-size: 1.2em;'
+    ],
+    desktop : [
+      'top: auto;',
+      'left: auto;',
+      'bottom: 90px;',
+      'right: 20px;'
+    ]
+  },
+  link: {
+    default: [
+      'display: none;'
+    ],
+    desktop: [
+      'display: inline;',
+      'padding: 0.2em 0.4em 0.35em;',
+      'color: #444;',
+      'background: rgba(255,255,255,0.65);',
+      'float: right;',
+      'text-decoration: none;',
+      'margin-top: 0.4em;'
+    ],
+    hover: [
+      'background: rgba(255,255,255,0.8);'
+    ]
+  }
+};
+
+/**
+ * Helper class for the canvas overlay, which has to be rendered and styled
+ * in JavaScript, just because.
+ *
+ * @param {string} pairCode
+ * * @param {string} linkUrl
+ * @param {boolean} includeStyles
+ */
+var Overlay = function (pairCode, linkUrl, includeStyles) {
+	/** @type {string} Pair code. */
+	this.pairCode = pairCode;
+
+	/** @type {string} URL for 'Connect' button. */
+	this.linkUrl = linkUrl;
+
+  /** @type {Element} Overlay element. */
+  this.el = document.createElement('div');
+
+  /** @type {Element} Overlay stylesheet. */
+  this.stylesheet = null;
+
+  if (includeStyles) {
+  	this.stylesheet = document.createElement('style');
+  	this.appendStyles();
+  }
+
+  this.render();
+};
+
+Overlay.prototype.render = function () {
+  var overlayLink = document.createElement('a'),
+      overlayLinkWrap = document.createElement('div');
+  overlayLink.textContent = '› Connect';
+  overlayLink.href = this.linkUrl + '/#/connect';
+  overlayLink.target = '_blank';
+  overlayLink.classList.add('overlay-link');
+
+  this.el.textContent = 'Pair code: “' + this.pairCode + '”';
+  this.el.classList.add('overlay');
+
+  overlayLinkWrap.appendChild(overlayLink);
+  this.el.appendChild(overlayLinkWrap);
+  document.body.appendChild(this.el);
+};
+
+Overlay.prototype.appendStyles = function () {
+  var style = this.stylesheet;
+  style.type = 'text/css';
+  document.head.appendChild(style);
+  style.sheet.insertRule(''
+    + '@media screen and (min-width: 550px) { .overlay { '
+    +   STYLES.overlay.desktop.join('')
+    + ' }}',
+    0
+  );
+  style.sheet.insertRule(''
+    + '@media screen and (min-width: 550px) { .overlay-link { '
+    +   STYLES.link.desktop.join('')
+    + ' }}',
+    0
+  );
+  style.sheet.insertRule('.overlay { ' + STYLES.overlay.default.join('') + ' }', 0);
+  style.sheet.insertRule('.overlay-link { ' + STYLES.link.default.join('') + ' }', 0);
+  style.sheet.insertRule('.overlay-link:hover { ' + STYLES.link.hover.join('') + ' }', 0);
+};
+
+Overlay.prototype.destroy = function () {
+	this.el.remove();
+	if (this.stylesheet) this.stylesheet.remove();
+};
+
+module.exports = Overlay;
+
 },{}],4:[function(require,module,exports){
+
+},{}],5:[function(require,module,exports){
 (function (global){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1585,7 +1700,7 @@ function blitBuffer (src, dst, offset, length) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":5,"ieee754":6,"isarray":7}],5:[function(require,module,exports){
+},{"base64-js":6,"ieee754":7,"isarray":8}],6:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1711,7 +1826,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -1797,14 +1912,14 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2104,7 +2219,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2129,7 +2244,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * Determine if an object is Buffer
  *
@@ -2148,12 +2263,12 @@ module.exports = function (obj) {
     ))
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2246,10 +2361,10 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":14}],14:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":15}],15:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -2333,7 +2448,7 @@ function forEach (xs, f) {
   }
 }
 
-},{"./_stream_readable":16,"./_stream_writable":18,"core-util-is":19,"inherits":9,"process-nextick-args":20}],15:[function(require,module,exports){
+},{"./_stream_readable":17,"./_stream_writable":19,"core-util-is":20,"inherits":10,"process-nextick-args":21}],16:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -2362,7 +2477,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":17,"core-util-is":19,"inherits":9}],16:[function(require,module,exports){
+},{"./_stream_transform":18,"core-util-is":20,"inherits":10}],17:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3341,7 +3456,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":14,"_process":12,"buffer":4,"core-util-is":19,"events":8,"inherits":9,"isarray":11,"process-nextick-args":20,"string_decoder/":27,"util":3}],17:[function(require,module,exports){
+},{"./_stream_duplex":15,"_process":13,"buffer":5,"core-util-is":20,"events":9,"inherits":10,"isarray":12,"process-nextick-args":21,"string_decoder/":28,"util":4}],18:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -3540,7 +3655,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":14,"core-util-is":19,"inherits":9}],18:[function(require,module,exports){
+},{"./_stream_duplex":15,"core-util-is":20,"inherits":10}],19:[function(require,module,exports){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
 // the drain event emission and buffering.
@@ -4071,7 +4186,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./_stream_duplex":14,"buffer":4,"core-util-is":19,"events":8,"inherits":9,"process-nextick-args":20,"util-deprecate":21}],19:[function(require,module,exports){
+},{"./_stream_duplex":15,"buffer":5,"core-util-is":20,"events":9,"inherits":10,"process-nextick-args":21,"util-deprecate":22}],20:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4182,7 +4297,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../../../insert-module-globals/node_modules/is-buffer/index.js")})
-},{"../../../../insert-module-globals/node_modules/is-buffer/index.js":10}],20:[function(require,module,exports){
+},{"../../../../insert-module-globals/node_modules/is-buffer/index.js":11}],21:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4206,7 +4321,7 @@ function nextTick(fn) {
 }
 
 }).call(this,require('_process'))
-},{"_process":12}],21:[function(require,module,exports){
+},{"_process":13}],22:[function(require,module,exports){
 (function (global){
 
 /**
@@ -4277,10 +4392,10 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":15}],23:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":16}],24:[function(require,module,exports){
 var Stream = (function (){
   try {
     return require('st' + 'ream'); // hack to fix a circular dependency issue when used with browserify
@@ -4294,13 +4409,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":14,"./lib/_stream_passthrough.js":15,"./lib/_stream_readable.js":16,"./lib/_stream_transform.js":17,"./lib/_stream_writable.js":18}],24:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":15,"./lib/_stream_passthrough.js":16,"./lib/_stream_readable.js":17,"./lib/_stream_transform.js":18,"./lib/_stream_writable.js":19}],25:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":17}],25:[function(require,module,exports){
+},{"./lib/_stream_transform.js":18}],26:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":18}],26:[function(require,module,exports){
+},{"./lib/_stream_writable.js":19}],27:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4429,7 +4544,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":8,"inherits":9,"readable-stream/duplex.js":13,"readable-stream/passthrough.js":22,"readable-stream/readable.js":23,"readable-stream/transform.js":24,"readable-stream/writable.js":25}],27:[function(require,module,exports){
+},{"events":9,"inherits":10,"readable-stream/duplex.js":14,"readable-stream/passthrough.js":23,"readable-stream/readable.js":24,"readable-stream/transform.js":25,"readable-stream/writable.js":26}],28:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4652,7 +4767,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":4}],28:[function(require,module,exports){
+},{"buffer":5}],29:[function(require,module,exports){
 var events = require('events');
 var inherits = require('inherits');  // A tiny lib containing `util.inherits`.
 
@@ -4965,9 +5080,9 @@ SocketPeer.prototype._debug = function () {
 
 module.exports = SocketPeer;
 
-},{"events":8,"inherits":29,"simple-peer":30,"xtend/mutable":40}],29:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"dup":9}],30:[function(require,module,exports){
+},{"events":9,"inherits":30,"simple-peer":31,"xtend/mutable":41}],30:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],31:[function(require,module,exports){
 (function (Buffer){
 /* global Blob */
 
@@ -5378,7 +5493,7 @@ function speedHack (obj) {
 function noop () {}
 
 }).call(this,{"isBuffer":require("../../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js")})
-},{"../../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js":10,"debug":31,"hat":34,"inherits":29,"is-typedarray":35,"once":37,"stream":26,"typedarray-to-buffer":38,"wrtc":3,"xtend/mutable":40}],31:[function(require,module,exports){
+},{"../../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js":11,"debug":32,"hat":35,"inherits":30,"is-typedarray":36,"once":38,"stream":27,"typedarray-to-buffer":39,"wrtc":4,"xtend/mutable":41}],32:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -5548,7 +5663,7 @@ function localstorage(){
   } catch (e) {}
 }
 
-},{"./debug":32}],32:[function(require,module,exports){
+},{"./debug":33}],33:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -5747,7 +5862,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":33}],33:[function(require,module,exports){
+},{"ms":34}],34:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -5874,7 +5989,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var hat = module.exports = function (bits, base) {
     if (!base) base = 16;
     if (bits === undefined) bits = 128;
@@ -5938,7 +6053,7 @@ hat.rack = function (bits, base, expandBy) {
     return fn;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports      = isTypedArray
 isTypedArray.strict = isStrictTypedArray
 isTypedArray.loose  = isLooseTypedArray
@@ -5979,7 +6094,7 @@ function isLooseTypedArray(arr) {
   return names[toString.call(arr)]
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 // Returns a wrapper function that returns a wrapped callback
 // The wrapper function should do some stuff, and return a
 // presumably different callback function.
@@ -6014,7 +6129,7 @@ function wrappy (fn, cb) {
   }
 }
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var wrappy = require('wrappy')
 module.exports = wrappy(once)
 
@@ -6037,7 +6152,7 @@ function once (fn) {
   return f
 }
 
-},{"wrappy":36}],38:[function(require,module,exports){
+},{"wrappy":37}],39:[function(require,module,exports){
 (function (Buffer){
 /**
  * Convert a typed array to a Buffer without a copy
@@ -6076,7 +6191,7 @@ module.exports = function (arr) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":4,"is-typedarray":39}],39:[function(require,module,exports){
+},{"buffer":5,"is-typedarray":40}],40:[function(require,module,exports){
 module.exports      = isTypedArray
 isTypedArray.strict = isStrictTypedArray
 isTypedArray.loose  = isLooseTypedArray
@@ -6119,7 +6234,7 @@ function isLooseTypedArray(arr) {
   return names[toString.call(arr)]
 }
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -6138,7 +6253,7 @@ function extend(target) {
     return target
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 (function(self) {
   'use strict';
 
@@ -6529,12 +6644,13 @@ function extend(target) {
   self.fetch.polyfill = true
 })(typeof self !== 'undefined' ? self : this);
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function (process){
 require('./lib/Object.polyfill.js');
 require('whatwg-fetch');
 
-var SocketPeer = require('socketpeer');
+var SocketPeer = require('socketpeer'),
+    Overlay = require('./lib/overlay');
 
 var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 if (typeof process !== 'undefined') {
@@ -6571,51 +6687,6 @@ module.exports = {
   },
 
   /*******************************************************************
-  * Styles
-  */
-
-  styles: {
-    overlay: {
-      default: [
-        'position: absolute;',
-        'top: 20px;',
-        'left: 20px;',
-        'max-width: calc(100% - 40px);',
-        'box-sizing: border-box;',
-        'padding: 0.5em;',
-        'color: #FFF;',
-        'background: rgba(0,0,0,0.35);',
-        'font-family: Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif;',
-        'font-size: 1.2em;'
-      ],
-      desktop : [
-        'top: auto;',
-        'left: auto;',
-        'bottom: 90px;',
-        'right: 20px;'
-      ]
-    },
-    link: {
-      default: [
-        'display: none;'
-      ],
-      desktop: [
-        'display: inline;',
-        'padding: 0.2em 0.4em 0.35em;',
-        'color: #444;',
-        'background: rgba(255,255,255,0.65);',
-        'float: right;',
-        'text-decoration: none;',
-        'margin-top: 0.4em;'
-      ],
-      hover: [
-        'background: rgba(255,255,255,0.8);'
-      ]
-    }
-  },
-
-
-  /*******************************************************************
   * Initialization
   */
 
@@ -6626,11 +6697,8 @@ module.exports = {
     /** @type {SocketPeer} WebRTC/WebSocket connection. */
     this.peer = null;
 
-    /** @type {Element} Overlay element to display local client ID. */
+    /** @type {Overlay} Overlay to display pair code. */
     this.overlay = null;
-
-    /** @type {Element} Stylesheet for overlay element. */
-    this.overlayStylesheet = null;
 
     /** @type {Object} State tracking, keyed by event type. */
     this.state = {};
@@ -6664,7 +6732,6 @@ module.exports = {
     });
 
     this.createOverlay(pairCode);
-    this.createOverlayStyles();
 
     peer.on('connect', this.onConnection.bind(this));
     peer.on('disconnect', this.createOverlay.bind(this, pairCode));
@@ -6681,50 +6748,18 @@ module.exports = {
 
   onConnection: function () {
     if (this.data.debug) console.info('peer:connection()');
+    if (this.overlay) this.overlay.destroy();
     this.peer.on('data', this.onEvent.bind(this));
-    this.overlay.remove();
   },
 
-  createOverlay: function (text) {
-    if (!this.data.enableOverlay) return;
-
-    var overlayLink = document.createElement('a'),
-        overlayLinkWrap = document.createElement('div');
-    overlayLink.textContent = '› Connect';
-    overlayLink.href = this.data.proxyUrl + '/#/connect';
-    overlayLink.target = '_blank';
-    overlayLink.classList.add('overlay-link');
-
-    this.overlay = document.createElement('div');
-    this.overlay.textContent = 'Pair code: “' + text + '”';
-    this.overlay.classList.add('overlay');
-
-    overlayLinkWrap.appendChild(overlayLink);
-    this.overlay.appendChild(overlayLinkWrap);
-    document.body.appendChild(this.overlay);
-  },
-
-  createOverlayStyles: function () {
-    if (!this.data.enableOverlay || !this.data.enableOverlayStyles) return;
-
-    var style = this.overlayStylesheet = document.createElement('style');
-    style.type = 'text/css';
-    document.head.appendChild(style);
-    style.sheet.insertRule(''
-      + '@media screen and (min-width: 550px) { .overlay { '
-      +   this.styles.overlay.desktop.join('')
-      + ' }}',
-      0
-    );
-    style.sheet.insertRule(''
-      + '@media screen and (min-width: 550px) { .overlay-link { '
-      +   this.styles.link.desktop.join('')
-      + ' }}',
-      0
-    );
-    style.sheet.insertRule('.overlay { ' + this.styles.overlay.default.join('') + ' }', 0);
-    style.sheet.insertRule('.overlay-link { ' + this.styles.link.default.join('') + ' }', 0);
-    style.sheet.insertRule('.overlay-link:hover { ' + this.styles.link.hover.join('') + ' }', 0);
+  createOverlay: function (pairCode) {
+    if (this.data.enableOverlay) {
+      this.overlay = new Overlay(
+        pairCode,
+        this.data.proxyUrl + '/#/connect',
+        this.data.enableOverlayStyles
+      );
+    }
   },
 
   /*******************************************************************
@@ -6798,10 +6833,9 @@ module.exports = {
    */
   remove: function () {
     if (this.peer) this.peer.destroy();
-    if (this.overlay) this.overlay.remove();
-    if (this.overlayStylesheet) this.overlayStylesheet.remove();
+    if (this.overlay) this.overlay.destroy();
   }
 };
 
 }).call(this,require('_process'))
-},{"./lib/Object.polyfill.js":2,"_process":12,"socketpeer":28,"whatwg-fetch":41}]},{},[1]);
+},{"./lib/Object.polyfill.js":2,"./lib/overlay":3,"_process":13,"socketpeer":29,"whatwg-fetch":42}]},{},[1]);
