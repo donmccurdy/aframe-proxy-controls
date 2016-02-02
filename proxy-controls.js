@@ -1,7 +1,8 @@
 require('./lib/Object.polyfill.js');
 require('whatwg-fetch');
 
-var SocketPeer = require('socketpeer');
+var SocketPeer = require('socketpeer'),
+    Overlay = require('./lib/overlay');
 
 var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 if (typeof process !== 'undefined') {
@@ -38,51 +39,6 @@ module.exports = {
   },
 
   /*******************************************************************
-  * Styles
-  */
-
-  styles: {
-    overlay: {
-      default: [
-        'position: absolute;',
-        'top: 20px;',
-        'left: 20px;',
-        'max-width: calc(100% - 40px);',
-        'box-sizing: border-box;',
-        'padding: 0.5em;',
-        'color: #FFF;',
-        'background: rgba(0,0,0,0.35);',
-        'font-family: Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif;',
-        'font-size: 1.2em;'
-      ],
-      desktop : [
-        'top: auto;',
-        'left: auto;',
-        'bottom: 90px;',
-        'right: 20px;'
-      ]
-    },
-    link: {
-      default: [
-        'display: none;'
-      ],
-      desktop: [
-        'display: inline;',
-        'padding: 0.2em 0.4em 0.35em;',
-        'color: #444;',
-        'background: rgba(255,255,255,0.65);',
-        'float: right;',
-        'text-decoration: none;',
-        'margin-top: 0.4em;'
-      ],
-      hover: [
-        'background: rgba(255,255,255,0.8);'
-      ]
-    }
-  },
-
-
-  /*******************************************************************
   * Initialization
   */
 
@@ -93,11 +49,8 @@ module.exports = {
     /** @type {SocketPeer} WebRTC/WebSocket connection. */
     this.peer = null;
 
-    /** @type {Element} Overlay element to display local client ID. */
+    /** @type {Overlay} Overlay to display pair code. */
     this.overlay = null;
-
-    /** @type {Element} Stylesheet for overlay element. */
-    this.overlayStylesheet = null;
 
     /** @type {Object} State tracking, keyed by event type. */
     this.state = {};
@@ -131,7 +84,6 @@ module.exports = {
     });
 
     this.createOverlay(pairCode);
-    this.createOverlayStyles();
 
     peer.on('connect', this.onConnection.bind(this));
     peer.on('disconnect', this.createOverlay.bind(this, pairCode));
@@ -148,50 +100,18 @@ module.exports = {
 
   onConnection: function () {
     if (this.data.debug) console.info('peer:connection()');
+    if (this.overlay) this.overlay.destroy();
     this.peer.on('data', this.onEvent.bind(this));
-    this.overlay.remove();
   },
 
-  createOverlay: function (text) {
-    if (!this.data.enableOverlay) return;
-
-    var overlayLink = document.createElement('a'),
-        overlayLinkWrap = document.createElement('div');
-    overlayLink.textContent = '› Connect';
-    overlayLink.href = this.data.proxyUrl + '/#/connect';
-    overlayLink.target = '_blank';
-    overlayLink.classList.add('overlay-link');
-
-    this.overlay = document.createElement('div');
-    this.overlay.textContent = 'Pair code: “' + text + '”';
-    this.overlay.classList.add('overlay');
-
-    overlayLinkWrap.appendChild(overlayLink);
-    this.overlay.appendChild(overlayLinkWrap);
-    document.body.appendChild(this.overlay);
-  },
-
-  createOverlayStyles: function () {
-    if (!this.data.enableOverlay || !this.data.enableOverlayStyles) return;
-
-    var style = this.overlayStylesheet = document.createElement('style');
-    style.type = 'text/css';
-    document.head.appendChild(style);
-    style.sheet.insertRule(''
-      + '@media screen and (min-width: 550px) { .overlay { '
-      +   this.styles.overlay.desktop.join('')
-      + ' }}',
-      0
-    );
-    style.sheet.insertRule(''
-      + '@media screen and (min-width: 550px) { .overlay-link { '
-      +   this.styles.link.desktop.join('')
-      + ' }}',
-      0
-    );
-    style.sheet.insertRule('.overlay { ' + this.styles.overlay.default.join('') + ' }', 0);
-    style.sheet.insertRule('.overlay-link { ' + this.styles.link.default.join('') + ' }', 0);
-    style.sheet.insertRule('.overlay-link:hover { ' + this.styles.link.hover.join('') + ' }', 0);
+  createOverlay: function (pairCode) {
+    if (this.data.enableOverlay) {
+      this.overlay = new Overlay(
+        pairCode,
+        this.data.proxyUrl + '/#/connect',
+        this.data.enableOverlayStyles
+      );
+    }
   },
 
   /*******************************************************************
@@ -265,7 +185,6 @@ module.exports = {
    */
   remove: function () {
     if (this.peer) this.peer.destroy();
-    if (this.overlay) this.overlay.remove();
-    if (this.overlayStylesheet) this.overlayStylesheet.remove();
+    if (this.overlay) this.overlay.destroy();
   }
 };

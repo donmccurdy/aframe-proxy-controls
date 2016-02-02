@@ -53,31 +53,27 @@ describe('proxy controls', function () {
   describe('pair code overlay', function () {
 
     it('displays pair code in overlay and inserts styles', function () {
-      expect(document.querySelector('.overlay').textContent).to.contain('pair-code');
-      expect(ctrl.overlayStylesheet.parentNode).to.equal(document.head);
+      expect(ctrl.overlay.el.textContent).to.contain('pair-code');
+      expect(ctrl.overlay.stylesheet).to.be.ok;
     });
 
     it('hides overlay for enableOverlay:false', function () {
+      ctrl.overlay.destroy();
       ctrl.overlay = null;
-      ctrl.overlayStylesheet = null;
-      document.querySelector('.overlay').remove();
 
       ctrl.data.enableOverlay = false;
       ctrl.createOverlay('pair-code');
       expect(ctrl.overlay).to.be.null;
-      expect(ctrl.overlayStylesheet).to.be.null;
     });
 
     it('omits styles for enableOverlayStiles:false', function () {
-      ctrl.overlay.remove();
+      ctrl.overlay.destroy();
       ctrl.overlay = null;
-      ctrl.overlayStylesheet.remove();
-      ctrl.overlayStylesheet = null;
 
       ctrl.data.enableOverlayStyles = false;
       ctrl.createOverlay('pair-code');
       expect(ctrl.overlay).to.be.ok;
-      expect(ctrl.overlayStylesheet).to.be.null;
+      expect(ctrl.overlay.stylesheet).to.be.null;
     });
     
   });
