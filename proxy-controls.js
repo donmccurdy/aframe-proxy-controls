@@ -58,8 +58,8 @@ module.exports = {
       desktop : [
         'top: auto;',
         'left: auto;',
-        'bottom: 20px;',
-        'right: 100px;'
+        'bottom: 90px;',
+        'right: 20px;'
       ]
     },
     link: {
@@ -67,8 +67,16 @@ module.exports = {
         'display: none;'
       ],
       desktop: [
-        'display: block;',
-        'text-align: right;'
+        'display: inline;',
+        'padding: 0.2em 0.4em 0.35em;',
+        'color: #444;',
+        'background: rgba(255,255,255,0.65);',
+        'float: right;',
+        'text-decoration: none;',
+        'margin-top: 0.4em;'
+      ],
+      hover: [
+        'background: rgba(255,255,255,0.8);'
       ]
     }
   },
@@ -147,16 +155,19 @@ module.exports = {
   createOverlay: function (text) {
     if (!this.data.enableOverlay) return;
 
-    var overlayLink = document.createElement('a');
+    var overlayLink = document.createElement('a'),
+        overlayLinkWrap = document.createElement('div');
     overlayLink.textContent = '› Connect';
     overlayLink.href = this.data.proxyUrl + '/#/connect';
+    overlayLink.target = '_blank';
     overlayLink.classList.add('overlay-link');
 
     this.overlay = document.createElement('div');
-    this.overlay.textContent = 'Pair code: "' + text + '"';
+    this.overlay.textContent = 'Pair code: “' + text + '”';
     this.overlay.classList.add('overlay');
-    this.overlay.appendChild(overlayLink);
 
+    overlayLinkWrap.appendChild(overlayLink);
+    this.overlay.appendChild(overlayLinkWrap);
     document.body.appendChild(this.overlay);
   },
 
@@ -180,6 +191,7 @@ module.exports = {
     );
     style.sheet.insertRule('.overlay { ' + this.styles.overlay.default.join('') + ' }', 0);
     style.sheet.insertRule('.overlay-link { ' + this.styles.link.default.join('') + ' }', 0);
+    style.sheet.insertRule('.overlay-link:hover { ' + this.styles.link.hover.join('') + ' }', 0);
   },
 
   /*******************************************************************
