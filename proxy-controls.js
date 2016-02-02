@@ -30,9 +30,12 @@ module.exports = {
 
     // WebRTC/WebSocket configuration.
     proxyUrl: { default: PROXY_URL },
-    pairCode: { default: '' }
-  },
+    pairCode: { default: '' },
 
+    // Overlay styles
+    enableOverlay: {default: true },
+    enableOverlayStyles: { default: true }
+  },
 
   /*******************************************************************
   * Styles
@@ -40,19 +43,36 @@ module.exports = {
 
   styles: {
     overlay: {
-      position: 'absolute',
-      top: '20px',
-      left: '20px',
-      maxWidth: 'calc(100% - 40px)',
-      boxSizing: 'border-box',
-      padding: '0.5em',
-      color: '#FFF',
-      background: 'rgba(0,0,0,0.5)',
-      borderRadius: '3px',
-      fontFamily: 'monospace',
-      fontSize: '1.2em'
+      default: [
+        'position: absolute;',
+        'top: 20px;',
+        'left: 20px;',
+        'max-width: calc(100% - 40px);',
+        'box-sizing: border-box;',
+        'padding: 0.5em;',
+        'color: #FFF;',
+        'background: rgba(0,0,0,0.35);',
+        'font-family: Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif;',
+        'font-size: 1.2em;'
+      ],
+      desktop : [
+        'top: auto;',
+        'left: auto;',
+        'bottom: 20px;',
+        'right: 100px;'
+      ]
+    },
+    link: {
+      default: [
+        'display: none;'
+      ],
+      desktop: [
+        'display: block;',
+        'text-align: right;'
+      ]
     }
   },
+
 
   /*******************************************************************
   * Initialization
@@ -67,6 +87,9 @@ module.exports = {
 
     /** @type {Element} Overlay element to display local client ID. */
     this.overlay = null;
+
+    /** @type {Element} Stylesheet for overlay element. */
+    this.overlayStylesheet = null;
 
     /** @type {Object} State tracking, keyed by event type. */
     this.state = {};
@@ -87,28 +110,32 @@ module.exports = {
   */
 
   setupConnection: function (pairCode) {
-    if (!this.data.proxyUrl) {
+    var data = this.data;
+
+    if (!data.proxyUrl) {
       console.error('proxy-controls "proxyUrl" property not found.');
       return;
     }
 
     var peer = this.peer = new SocketPeer({
       pairCode: pairCode,
-      url: this.data.proxyUrl + '/socketpeer/'
+      url: data.proxyUrl + '/socketpeer/'
     });
 
-    // Debugging
-    if (this.data.debug) {
-      peer.on('connect', console.info.bind(console, 'peer:connect("%s")'));
-      peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
-    }
+    this.createOverlay(pairCode);
+    this.createOverlayStyles();
 
-    this.createOverlay('Pair code: "' + pairCode + '"');
     peer.on('connect', this.onConnection.bind(this));
     peer.on('disconnect', this.createOverlay.bind(this, pairCode));
     peer.on('error', function (error) {
-      if (this.data.debug) console.error('peer:error(%s)', error.message);
-    }.bind(this));
+      if (data.debug) console.error('peer:error(%s)', error.message);
+    });
+
+    // Debugging
+    if (data.debug) {
+      peer.on('connect', console.info.bind(console, 'peer:connect("%s")'));
+      peer.on('upgrade', console.info.bind(console, 'peer:upgrade("%s")'));
+    }
   },
 
   onConnection: function () {
@@ -118,10 +145,41 @@ module.exports = {
   },
 
   createOverlay: function (text) {
+    if (!this.data.enableOverlay) return;
+
+    var overlayLink = document.createElement('a');
+    overlayLink.textContent = '› Connect';
+    overlayLink.href = this.data.proxyUrl + '/#/connect';
+    overlayLink.classList.add('overlay-link');
+
     this.overlay = document.createElement('div');
-    this.overlay.textContent = text;
-    Object.assign(this.overlay.style, this.styles.overlay);
+    this.overlay.textContent = 'Pair code: "' + text + '"';
+    this.overlay.classList.add('overlay');
+    this.overlay.appendChild(overlayLink);
+
     document.body.appendChild(this.overlay);
+  },
+
+  createOverlayStyles: function () {
+    if (!this.data.enableOverlay || !this.data.enableOverlayStyles) return;
+
+    var style = this.overlayStylesheet = document.createElement('style');
+    style.type = 'text/css';
+    document.head.appendChild(style);
+    style.sheet.insertRule(''
+      + '@media screen and (min-width: 550px) { .overlay { '
+      +   this.styles.overlay.desktop.join('')
+      + ' }}',
+      0
+    );
+    style.sheet.insertRule(''
+      + '@media screen and (min-width: 550px) { .overlay-link { '
+      +   this.styles.link.desktop.join('')
+      + ' }}',
+      0
+    );
+    style.sheet.insertRule('.overlay { ' + this.styles.overlay.default.join('') + ' }', 0);
+    style.sheet.insertRule('.overlay-link { ' + this.styles.link.default.join('') + ' }', 0);
   },
 
   /*******************************************************************
@@ -195,5 +253,7 @@ module.exports = {
    */
   remove: function () {
     if (this.peer) this.peer.destroy();
+    if (this.overlay) this.overlay.remove();
+    if (this.overlayStylesheet) this.overlayStylesheet.remove();
   }
 };

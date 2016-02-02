@@ -1,6 +1,6 @@
-var Aframe = require('aframe-core');
-var component = require('../proxy-controls.js');
-var entityFactory = require('./helpers').entityFactory;
+var Aframe = require('aframe-core'),
+    component = require('../proxy-controls.js'),
+    entityFactory = require('./helpers').entityFactory;
 
 Aframe.registerComponent('proxy-controls', component);
 
@@ -9,7 +9,7 @@ describe('proxy controls', function () {
       fetchPromise;
 
   beforeEach(function () {
-    fetchPromise = new Promise(function () {}, function () {});
+    fetchPromise = Promise.resolve({json: function () { return {pairCode: 'pair-code'}; }});
     sinon.stub(window, 'fetch', function () { return fetchPromise; });
   });
 
@@ -19,7 +19,7 @@ describe('proxy controls', function () {
 
   beforeEach(function (done) {
     this.el = entityFactory();
-    this.el.setAttribute('proxy-controls', '');
+    this.el.setAttribute('proxy-controls', 'proxyUrl: http://foo.bar.baz');
     this.el.addEventListener('loaded', function () {
       ctrl = this.el.components['proxy-controls'];
       done();
@@ -48,6 +48,38 @@ describe('proxy controls', function () {
       ctrl.onEvent({type: 'plush-toy', state: state});
       expect(ctrl.get('plush-toy')).to.equal(state);
     });
+  });
+
+  describe('pair code overlay', function () {
+
+    it('displays pair code in overlay and inserts styles', function () {
+      expect(document.querySelector('.overlay').textContent).to.contain('pair-code');
+      expect(ctrl.overlayStylesheet.parentNode).to.equal(document.head);
+    });
+
+    it('hides overlay for enableOverlay:false', function () {
+      ctrl.overlay = null;
+      ctrl.overlayStylesheet = null;
+      document.querySelector('.overlay').remove();
+
+      ctrl.data.enableOverlay = false;
+      ctrl.createOverlay('pair-code');
+      expect(ctrl.overlay).to.be.null;
+      expect(ctrl.overlayStylesheet).to.be.null;
+    });
+
+    it('omits styles for enableOverlayStiles:false', function () {
+      ctrl.overlay.remove();
+      ctrl.overlay = null;
+      ctrl.overlayStylesheet.remove();
+      ctrl.overlayStylesheet = null;
+
+      ctrl.data.enableOverlayStyles = false;
+      ctrl.createOverlay('pair-code');
+      expect(ctrl.overlay).to.be.ok;
+      expect(ctrl.overlayStylesheet).to.be.null;
+    });
+    
   });
 
 });
