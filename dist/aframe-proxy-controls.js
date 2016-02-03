@@ -6731,6 +6731,7 @@ module.exports = {
       url: data.proxyUrl + '/socketpeer/'
     });
 
+    this.el.emit('proxycontrols.paircode', {pairCode: pairCode});
     this.createOverlay(pairCode);
 
     peer.on('connect', this.onConnection.bind(this));
