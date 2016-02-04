@@ -14,11 +14,8 @@ Add the `proxy-controls` component to the scene, and use one of the input contro
 
 ```html
 <a-scene proxy-controls>
-
   <a-entity id="player-1" gamepad-controls="controller=0"></a-entity>
-  
   <a-entity id="player-2" gamepad-controls="controller=1"></a-entity>
-
 </a-scene>
 ```
 
