@@ -6768,7 +6768,9 @@ module.exports = {
   */
 
   onEvent: function (event) {
-    if (!event.type) {
+    if (!this.data.enabled) {
+      return;
+    } else if (!event.type) {
       if (this.data.debug) console.warn('Missing event type.');
     } else if (event.type === 'ping') {
       this.peer.send(event);
