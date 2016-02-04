@@ -1,6 +1,6 @@
 # A-Frame `proxy-controls` Component
 
-*(In Progress)* A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.
+A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.
 
 ## Overview
 
@@ -10,17 +10,33 @@ For performance, WebRTC DataStreams are used to minimize latency between the dev
 
 ## Usage
 
-This component should be used in the *viewer* application, to receive UI events from a remote application. A reusable remote application example will be available soon, but the API is simple enough that you can also build your own.
+Add the `proxy-controls` component to the scene, and use one of the input controller components on the object(s) you want to control. For example:
+
+```html
+<a-scene proxy-controls>
+
+  <a-entity id="player-1" gamepad-controls="controller=0"></a-entity>
+  
+  <a-entity id="player-2" gamepad-controls="controller=1"></a-entity>
+
+</a-scene>
+```
+
+The `gamepad-controls` component is available separately, [here](https://github.com/donmccurdy/aframe-gamepad-controls).
 
 ## Options
 
 Options are assigned with A-Frame's entity/component/property pattern:
 
 ```html
-<a-entity camera proxy-controls="enabled: true;
-                                 debug: true;
-                                 pairCode: 'my-secret-code';
-                                 enableOverlay: false;"></a-entity>
+<a-scene camera proxy-controls="enabled: true;
+                                debug: true;
+                                pairCode: 'my-secret-code';
+                                enableOverlay: false;">
+
+  <!-- scene content -->                                 
+                                 
+</a-scene>
 ```
 
 
@@ -28,8 +44,8 @@ Property            | Default  | Description
 --------------------|----------|-------------
 enabled             | true     | Enables/disables event updates from the host.
 debug               | false    | Enables/disables logging in the console.
-proxyUrl            | `'https://proxy-controls.donmccurdy.com'` | URL of the remote proxy server / signaling server.
-pairCode            | <random> | Pair code that should be used to match with the remote host. If not provided, a random pair code is assigned.
+proxyUrl            | https://proxy-controls.donmccurdy.com | URL of the remote proxy server / signaling server.
+pairCode            | \<random\> | Pair code that should be used to match with the remote host. If not provided, a random pair code is assigned.
 enableOverlay       | true | Enables/disables the overlay UI showing the pair code.
 enableOverlayStyles | true | Enables/disables the CSS used to style the pair code overlay.
 
