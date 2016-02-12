@@ -39,7 +39,7 @@
   "homepage": "https://github.com/donmccurdy/aframe-proxy-controls#readme",
   "dependencies": {
     "keyboardevent-key-polyfill": "^1.0.1",
-    "socketpeer": "donmccurdy/socketpeer#feat-emit-disconnect",
+    "socketpeer": "donmccurdy/socketpeer#fork-master",
     "whatwg-fetch": "^0.11.0"
   },
   "devDependencies": {
