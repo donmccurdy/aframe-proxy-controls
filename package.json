@@ -1,6 +1,6 @@
 {
   "name": "aframe-proxy-controls",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.",
   "main": "proxy-controls.js",
   "config": {
