@@ -6,7 +6,7 @@ var SocketPeer = require('socketpeer'),
 
 var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 if (typeof process !== 'undefined') {
-  PROXY_URL = process.env.npm_package_config_proxy_url;
+  PROXY_URL = process.env.npm_package_config_proxy_url || PROXY_URL;
 }
 
 /**
