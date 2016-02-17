@@ -6658,7 +6658,7 @@ var SocketPeer = require('socketpeer'),
 
 var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 if (typeof process !== 'undefined') {
-  PROXY_URL = "https://proxy-controls.donmccurdy.com";
+  PROXY_URL = "https://proxy-controls.donmccurdy.com" || PROXY_URL;
 }
 
 /**
