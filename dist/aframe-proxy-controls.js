@@ -74,6 +74,21 @@ var STYLES = {
     hover: [
       'background: rgba(255,255,255,0.8);'
     ]
+  },
+  x: {
+    default: [
+      'position: absolute;',
+      'top: -10px;',
+      'right: -10px;',
+      'height: 20px;',
+      'width: 20px;',
+      'line-height: 20px;',
+      'text-align: center;',
+      'border-radius: 50%;',
+      'background: rgba(0,0,0,0.35);',
+      'color: #FFF;',
+      'cursor: pointer;'
+    ]
   }
 };
 
@@ -108,7 +123,8 @@ var Overlay = function (pairCode, linkUrl, includeStyles) {
 
 Overlay.prototype.render = function () {
   var overlayLink = document.createElement('a'),
-      overlayLinkWrap = document.createElement('div');
+      overlayLinkWrap = document.createElement('div'),
+      overlayClose = document.createElement('div');
   overlayLink.textContent = '› Connect';
   overlayLink.href = this.linkUrl + '/#/connect';
   overlayLink.target = '_blank';
@@ -117,8 +133,13 @@ Overlay.prototype.render = function () {
   this.el.textContent = 'Pair code: “' + this.pairCode + '”';
   this.el.classList.add('overlay');
 
+  overlayClose.innerHTML = '&times;';
+  overlayClose.classList.add('overlay-x');
+  overlayClose.addEventListener('click', this.el.remove.bind(this.el));
+
   overlayLinkWrap.appendChild(overlayLink);
   this.el.appendChild(overlayLinkWrap);
+  this.el.appendChild(overlayClose);
   document.body.appendChild(this.el);
 };
 
@@ -139,6 +160,7 @@ Overlay.prototype.appendStyles = function () {
     0
   );
   style.sheet.insertRule('.overlay { ' + STYLES.overlay.default.join('') + ' }', 0);
+  style.sheet.insertRule('.overlay-x { ' + STYLES.x.default.join('') + ' }', 0);
   style.sheet.insertRule('.overlay-link { ' + STYLES.link.default.join('') + ' }', 0);
   style.sheet.insertRule('.overlay-link:hover { ' + STYLES.link.hover.join('') + ' }', 0);
 };
