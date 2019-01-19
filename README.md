@@ -1,5 +1,8 @@
 # A-Frame `proxy-controls` Component
 
+![Status](https://img.shields.io/badge/status-experimental-orange.svg)
+[![License](https://img.shields.io/badge/license-MIT-007ec6.svg)](https://github.com/donmccurdy/aframe-proxy-controls/blob/master/LICENSE)
+
 A-Frame component to proxy keyboard/gamepad controls between devices over WebRTC.
 
 ## Overview
